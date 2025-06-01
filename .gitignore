@@ -1,0 +1,5 @@
+**/env/
+backend/*.sqlite3
+**/*.pyc
+/backend/media/
+/backend/static/
