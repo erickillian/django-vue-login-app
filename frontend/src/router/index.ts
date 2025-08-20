@@ -1,110 +1,63 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAllAuthStore } from '@/stores/allauth';
-import { watch } from 'vue';
 
-// Public routes (no authentication required)
+// public routes
 const publicRoutes = [
-    {
-        path: '/',
-        name: 'ExternalHomePage',
-        component: () => import('@/pages/external/Home.vue'),
-        meta: { requiresAuth: false }
-    },
-    {
-        path: '/login',
-        name: 'LoginPage',
-        component: () => import('@/pages/external/Login.vue'),
-        meta: { requiresAuth: false }
-    },
-    {
-        path: '/signup',
-        name: 'SignUpPage',
-        component: () => import('@/pages/external/SignUp.vue'),
-        meta: { requiresAuth: false }
-    },
-    {
-        path: '/verify-email',
-        name: 'VerifyEmailPage',
-        component: () => import('@/pages/external/VerifyEmail.vue'),
-        meta: { requiresAuth: false }
-    },
-    {
-        path: '/forgot-password',
-        name: 'ForgotPasswordPage',
-        component: () => import('@/pages/external/ForgotPassword.vue'),
-        meta: { requiresAuth: false }
-    },
-    {
-        path: '/reset-password/:code',
-        name: 'ResetPasswordPage',
-        component: () => import('@/pages/external/ResetPassword.vue'),
-        props: (route) => ({ code: route.params.code }),
-        meta: { requiresAuth: false }
-    },
+    { path: '/', name: 'ExternalHomePage', component: () => import('@/pages/external/Home.vue') },
+    { path: '/login', name: 'LoginPage', component: () => import('@/pages/external/Login.vue') },
+    { path: '/signup', name: 'SignUpPage', component: () => import('@/pages/external/SignUp.vue') },
+    { path: '/verify-email', name: 'VerifyEmailPage', component: () => import('@/pages/external/VerifyEmail.vue') },
+    { path: '/forgot-password', name: 'ForgotPasswordPage', component: () => import('@/pages/external/ForgotPassword.vue') },
+    { path: '/reset-password/:code', name: 'ResetPasswordPage', component: () => import('@/pages/external/ResetPassword.vue'), props: true }
 ];
 
-// Internal routes (requires authentication)
+// internal routes
 const internalRoutes = [
-    {
-        path: '/home',
-        name: 'InternalHomePage',
-        component: () => import('@/pages/internal/Home.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/logout',
-        name: 'LogoutPage',
-        component: () => import('@/pages/internal/Logout.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/change-password',
-        name: 'ChangePasswordPage',
-        component: () => import('@/pages/internal/ChangePassword.vue'),
-        meta: { requiresAuth: true }
-    },
+    { path: '/', name: 'InternalHomePage', component: () => import('@/pages/internal/Home.vue') },
+    { path: '/logout', name: 'LogoutPage', component: () => import('@/pages/internal/Logout.vue') },
+    { path: '/change-password', name: 'ChangePasswordPage', component: () => import('@/pages/internal/ChangePassword.vue') }
 ];
 
-const routes = [
-    ...publicRoutes,
-    ...internalRoutes,
-    {
-        path: '/:pathMatch(.*)*',
-        redirect: '/'
-    },
-];
+const catchAllRoute = {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
+}
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
-    routes,
+    routes: [
+        catchAllRoute,
+    ]
 });
+
+// helper to reset routes
+function resetRoutes() {
+    router.getRoutes().forEach(route => {
+        if (route.name && route.name !== 'NotFound') {
+            router.removeRoute(route.name);
+        }
+    });
+}
+
+// set up auth-based routes when store changes
+export function setupRoutes(authStore) {
+    console.log(authStore.isAuthenticated);
+    if (authStore.isAuthenticated) {
+        resetRoutes();
+        internalRoutes.forEach(r => router.addRoute(r));
+    } else {
+        resetRoutes();
+        publicRoutes.forEach(r => router.addRoute(r));
+    }
+    // always keep a catch-all
+    router.addRoute(catchAllRoute);
+}
 
 router.beforeEach(async (to, from, next) => {
     const authStore = useAllAuthStore();
-
-    // if isAutnenticated is null then wait for it to be set to true or false
-    if (authStore.isAuthenticated === null) {
-        // Wait for authentication check to complete
-        await new Promise(resolve => {
-            const interval = setInterval(() => {
-                if (authStore.isAuthenticated !== null) {
-                    clearInterval(interval);
-                    resolve(true);
-                }
-            }, 100); // Check every 100ms
-        });
-    }
-
+    setupRoutes(authStore);
     // console.log(`Navigating to ${to.name}, requiresAuth: ${to.meta.requiresAuth}, isAuthenticated: ${authStore.isAuthenticated}`);
-
-    // If authentication hasn't been checked yet, do it now
-    if (authStore.isAuthenticated && !to.meta.requiresAuth) {
-        next({ name: 'InternalHomePage' });
-    } else if (!authStore.isAuthenticated && to.meta.requiresAuth) {
-        next({ name: 'LoginPage' });
-    } else {
-        next();
-    }
+    next();
 });
 
 export default router;

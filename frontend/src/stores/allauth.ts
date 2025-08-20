@@ -5,7 +5,7 @@ import * as userApi from '@/api/user';
 
 export const useAllAuthStore = defineStore('allauth', {
     state: () => ({
-        isAuthenticated: null,
+        isAuthenticated: false,
         user: null as null | Record<string, any>,
         user_self: null as any,
         loading: false,
@@ -13,7 +13,10 @@ export const useAllAuthStore = defineStore('allauth', {
         auth_response: null as any,
         emails: [] as any[],
     }),
-
+    persist: {
+        paths: ['isAuthenticated'],
+        storage: sessionStorage,
+    },
     actions: {
         async getUserInfo() {
             try {
