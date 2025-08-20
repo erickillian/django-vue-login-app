@@ -14,8 +14,15 @@ export const useAllAuthStore = defineStore('allauth', {
         emails: [] as any[],
     }),
     persist: {
-        paths: ['isAuthenticated'],
         storage: sessionStorage,
+        serializer: {
+            serialize: (state) =>
+                JSON.stringify({ isAuthenticated: state.isAuthenticated }),
+            deserialize: (str) => {
+                const data = JSON.parse(str)
+                return { isAuthenticated: data.isAuthenticated }
+            },
+        },
     },
     actions: {
         async getUserInfo() {
@@ -162,7 +169,7 @@ export const useAllAuthStore = defineStore('allauth', {
         async getEmails() {
             try {
                 const response = await allauthApi.getEmailAddresses();
-                this.emails = response.data || [];
+                this.emails = response.data.data || [];
             } catch (error: any) {
                 this.auth_errors = ['Error fetching emails'];
             }

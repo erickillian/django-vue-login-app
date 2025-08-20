@@ -11,11 +11,18 @@
     <div v-if="emails.length > 0">
       <h3>Your Emails</h3>
       <ul>
-        <li v-for="email in emails" :key="email">
-          <span>{{ email }}</span>
-          <button @click="handleMarkAsPrimary(email)">Mark as Primary</button>
-          <button @click="handleDeleteEmail(email)">Delete</button>
+        <li v-for="emailObj in emails" :key="emailObj.email">
+        <span>{{ emailObj.email }}</span>
+        <button 
+            @click="handleMarkAsPrimary(emailObj)" 
+            :disabled="!emailObj.verified || emailObj.primary"
+            title="You can only mark a verified, non-primary email as primary"
+        >
+            Mark as Primary
+        </button>
+        <button @click="handleDeleteEmail(emailObj)">Delete</button>
         </li>
+
       </ul>
     </div>
 
@@ -45,7 +52,7 @@ export default defineComponent({
 
     // Get the list of emails from the store
     const emails = computed(() => store.emails);
-    const authErrors = computed(() => store.auth_errors);
+    const authErrors = computed(() => store.auth_errors ?? []);
 
     // Fetch the current emails when the component is mounted
     store.getEmails();

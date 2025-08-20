@@ -15,7 +15,8 @@ const publicRoutes = [
 const internalRoutes = [
     { path: '/', name: 'InternalHomePage', component: () => import('@/pages/internal/Home.vue') },
     { path: '/logout', name: 'LogoutPage', component: () => import('@/pages/internal/Logout.vue') },
-    { path: '/change-password', name: 'ChangePasswordPage', component: () => import('@/pages/internal/ChangePassword.vue') }
+    { path: '/change-password', name: 'ChangePasswordPage', component: () => import('@/pages/internal/ChangePassword.vue') },
+    { path: '/edit-email', name: 'EditEmailPage', component: () => import('@/pages/internal/EditEmail.vue') },
 ];
 
 const catchAllRoute = {
@@ -41,7 +42,6 @@ function resetRoutes() {
 
 // set up auth-based routes when store changes
 export function setupRoutes(authStore) {
-    console.log(authStore.isAuthenticated);
     if (authStore.isAuthenticated) {
         resetRoutes();
         internalRoutes.forEach(r => router.addRoute(r));
@@ -56,7 +56,6 @@ export function setupRoutes(authStore) {
 router.beforeEach(async (to, from, next) => {
     const authStore = useAllAuthStore();
     setupRoutes(authStore);
-    // console.log(`Navigating to ${to.name}, requiresAuth: ${to.meta.requiresAuth}, isAuthenticated: ${authStore.isAuthenticated}`);
     next();
 });
 
