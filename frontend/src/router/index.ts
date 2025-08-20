@@ -53,10 +53,4 @@ export function setupRoutes(authStore) {
     router.addRoute(catchAllRoute);
 }
 
-router.beforeEach(async (to, from, next) => {
-    const authStore = useAllAuthStore();
-    setupRoutes(authStore);
-    next();
-});
-
 export default router;

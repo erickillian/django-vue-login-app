@@ -1,4 +1,3 @@
-// src/types/pinia.d.ts
 import 'pinia';
 import { StateTree } from 'pinia';
 
@@ -14,6 +13,10 @@ declare module 'pinia' {
             key?: string;
             paths?: (keyof S)[];
             storage?: Storage;
+            serializer?: {
+                serialize: (state: Partial<S>) => string;
+                deserialize: (str: string) => Partial<S>;
+            };
         };
     }
 }

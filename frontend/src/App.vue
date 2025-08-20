@@ -17,6 +17,14 @@ watch(
     (newVal, oldVal) => {
         if (newVal !== oldVal) {
             setupRoutes(allAuthStore);
+            if (newVal) {
+                console.log('User logged in');
+                router.push({ name: 'InternalHomePage' })
+            } else {
+                console.log('User logged out');
+                router.push({ name: 'ExternalHomePage' })
+            }
+            allAuthStore.checkAuthentication();
             router.push(newVal ? '/' : '/login');
         }
     }

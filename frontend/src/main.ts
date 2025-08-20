@@ -16,6 +16,10 @@ app.use(pinia);
 const authStore = useAllAuthStore();
 setupRoutes(authStore);
 
+if (authStore.isAuthenticated) {
+    authStore.checkAuthentication();
+}
+
 // also react to changes (login/logout)
 watch(
     () => authStore.isAuthenticated,
