@@ -25,16 +25,6 @@
             <option value="system">System</option>
           </select>
         </div>
-
-        <div>
-          <label for="profile_picture">Profile Picture:</label>
-          <select id="profile_picture" v-model.number="form.profile_picture">
-            <option v-for="pic in profilePictures" :key="pic" :value="pic">
-              Profile {{ pic }}
-            </option>
-          </select>
-        </div>
-
         <button type="submit">Save</button>
       </form>
     </div>
@@ -54,10 +44,7 @@ const loading = computed(() => authStore.loading)
 const form = reactive({
   full_name: '',
   color_mode: 'system',
-  profile_picture: 1,
 })
-
-const profilePictures = Array.from({ length: 12 }, (_, i) => i + 1)
 
 onMounted(async () => {
     await authStore.getUserInfo()

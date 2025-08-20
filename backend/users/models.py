@@ -1,7 +1,32 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-import random
 import uuid
+from django.contrib.auth.models import BaseUserManager
+
+
+class CustomUserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
 
 class User(AbstractUser):
     username = None
@@ -18,23 +43,14 @@ class User(AbstractUser):
         default="system",
     )
 
-    PROFILE_PICTURE_OPTIONS = 12
-    PROFILE_PICTURES = [i for i in range(1, PROFILE_PICTURE_OPTIONS + 1)]
-
-    profile_picture = models.IntegerField(
-        choices=[(pic, f"Profile {pic}") for pic in PROFILE_PICTURES],
-        blank=True,
-        null=True,
-    )
-
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
+
+    objects = CustomUserManager()
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = str(uuid.uuid4())
-        if not self.profile_picture:
-            self.profile_picture = random.choice(self.PROFILE_PICTURES)
         super().save(*args, **kwargs)
 
     @property

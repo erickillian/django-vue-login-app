@@ -38,7 +38,7 @@ export const useAllAuthStore = defineStore('allauth', {
             this.loading = true;
             try {
                 const response = await userApi.updateUser(data);
-                this.user = response.data?.data?.user || this.user;
+                this.user_self = response.data?.data?.user || this.user;
                 return response;
             } catch (error: any) {
                 this.auth_errors = error.response?.data?.errors?.map(
@@ -109,7 +109,7 @@ export const useAllAuthStore = defineStore('allauth', {
                     ];
                 }
             } else if (this.auth_response?.status === 409) {
-
+                this.logout();
             }
         },
 

@@ -11,7 +11,7 @@ class CustomUserCreationForm(UserCreationForm):
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = User
-        fields = ("full_name", "email", "color_mode", "profile_picture")
+        fields = ("full_name", "email", "color_mode")
 
 class UserAdmin(BaseUserAdmin):
     model = User
@@ -20,7 +20,7 @@ class UserAdmin(BaseUserAdmin):
     list_display = ("display_name", "email", "is_staff", "is_active")
     list_filter = ("is_staff", "is_active")
     fieldsets = (
-        (None, {"fields": ("full_name", "email", "password", "color_mode", "profile_picture")}),
+        (None, {"fields": ("full_name", "email", "password", "color_mode")}),
         (
             "Permissions",
             {
