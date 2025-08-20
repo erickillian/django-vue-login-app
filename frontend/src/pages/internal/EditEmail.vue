@@ -14,13 +14,14 @@
         <li v-for="emailObj in emails" :key="emailObj.email">
         <span>{{ emailObj.email }}</span>
         <button 
-            @click="handleMarkAsPrimary(emailObj)" 
+            @click="handleMarkAsPrimary(emailObj.email)" 
             :disabled="!emailObj.verified || emailObj.primary"
             title="You can only mark a verified, non-primary email as primary"
         >
             Mark as Primary
         </button>
-        <button @click="handleDeleteEmail(emailObj)">Delete</button>
+        <button @click="handleDeleteEmail(emailObj.email)">Delete</button>
+        <button :disabled="emailObj.verified" @click="handleVerifyEmail(emailObj.email)">Verify</button>
         </li>
 
       </ul>
@@ -42,6 +43,8 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 import { useAllAuthStore } from '@/stores/allauth';
+import { useRouter } from 'vue-router';
+
 
 export default defineComponent({
   name: 'EditEmail',
@@ -49,6 +52,7 @@ export default defineComponent({
     const store = useAllAuthStore();
     const newEmail = ref('');
     const verificationRequested = ref(false);
+    const router = useRouter();
 
     // Get the list of emails from the store
     const emails = computed(() => store.emails);
@@ -75,24 +79,16 @@ export default defineComponent({
 
     // Handle marking an email as primary
     const handleMarkAsPrimary = async (email: string) => {
-      try {
-        await store.markEmailAsPrimary(email);
-      } catch (error) {
-        // Handle any error
-        console.error(error);
-      }
+        store.markEmailAsPrimary(email);
     };
 
     // Handle deleting an email
     const handleDeleteEmail = async (email: string) => {
-      if (confirm(`Are you sure you want to delete ${email}?`)) {
-        try {
-          await store.deleteEmail(email);
-        } catch (error) {
-          // Handle any error
-          console.error(error);
-        }
-      }
+        store.deleteEmail(email);
+    };
+
+    const handleVerifyEmail = async (email: string) => {
+        router.push({ name: 'VerifyEmailPage'});
     };
 
     return {
@@ -103,6 +99,7 @@ export default defineComponent({
       handleAddEmail,
       handleMarkAsPrimary,
       handleDeleteEmail,
+      handleVerifyEmail,
     };
   },
 });
