@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Home Page</h1>
+        <h1>External Home Page</h1>
         <nav>
             <a href="#" @click.prevent="goToLogin">Login</a>
             <span> | </span>

@@ -1,70 +1,76 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAllAuthStore } from '@/stores/allauth'; // Adjust path as needed
+import { useAllAuthStore } from '@/stores/allauth';
+import { watch } from 'vue';
 
-// Public routes
+// Public routes (no authentication required)
 const publicRoutes = [
     {
         path: '/',
         name: 'ExternalHomePage',
         component: () => import('@/pages/external/Home.vue'),
+        meta: { requiresAuth: false }
     },
     {
         path: '/login',
         name: 'LoginPage',
         component: () => import('@/pages/external/Login.vue'),
+        meta: { requiresAuth: false }
     },
     {
         path: '/signup',
         name: 'SignUpPage',
         component: () => import('@/pages/external/SignUp.vue'),
+        meta: { requiresAuth: false }
     },
     {
         path: '/verify-email',
         name: 'VerifyEmailPage',
         component: () => import('@/pages/external/VerifyEmail.vue'),
+        meta: { requiresAuth: false }
     },
     {
         path: '/forgot-password',
         name: 'ForgotPasswordPage',
         component: () => import('@/pages/external/ForgotPassword.vue'),
+        meta: { requiresAuth: false }
     },
     {
         path: '/reset-password/:code',
         name: 'ResetPasswordPage',
         component: () => import('@/pages/external/ResetPassword.vue'),
         props: (route) => ({ code: route.params.code }),
+        meta: { requiresAuth: false }
     },
 ];
 
 // Internal routes (requires authentication)
 const internalRoutes = [
     {
-        path: '/',
+        path: '/home',
         name: 'InternalHomePage',
         component: () => import('@/pages/internal/Home.vue'),
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true }
     },
     {
         path: '/logout',
         name: 'LogoutPage',
         component: () => import('@/pages/internal/Logout.vue'),
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true }
     },
     {
         path: '/change-password',
         name: 'ChangePasswordPage',
         component: () => import('@/pages/internal/ChangePassword.vue'),
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true }
     },
 ];
 
-// Merge routes and add a catch-all redirect
 const routes = [
     ...publicRoutes,
     ...internalRoutes,
     {
         path: '/:pathMatch(.*)*',
-        redirect: '/',
+        redirect: '/'
     },
 ];
 
@@ -73,22 +79,27 @@ const router = createRouter({
     routes,
 });
 
-// Global navigation guard
 router.beforeEach(async (to, from, next) => {
     const authStore = useAllAuthStore();
 
-    const isLoggedIn = authStore.isAuthenticated;
+    // if isAutnenticated is null then wait for it to be set to true or false
+    if (authStore.isAuthenticated === null) {
+        // Wait for authentication check to complete
+        await new Promise(resolve => {
+            const interval = setInterval(() => {
+                if (authStore.isAuthenticated !== null) {
+                    clearInterval(interval);
+                    resolve(true);
+                }
+            }, 100); // Check every 100ms
+        });
+    }
 
-    if (to.meta.requiresAuth && !isLoggedIn) {
-        // Redirect unauthenticated users to login
-        next({ name: 'LoginPage' });
-    } else if (
-        !to.meta.requiresAuth &&
-        isLoggedIn &&
-        ['ExternalHomePage', 'LoginPage', 'SignUpPage', 'VerifyEmailPage'].includes(to.name as string)
-    ) {
-        // Redirect logged-in users away from public pages
+    // If authentication hasn't been checked yet, do it now
+    if (authStore.isAuthenticated && !to.meta.requiresAuth) {
         next({ name: 'InternalHomePage' });
+    } else if (!authStore.isAuthenticated && to.meta.requiresAuth) {
+        next({ name: 'LoginPage' });
     } else {
         next();
     }

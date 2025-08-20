@@ -11,6 +11,7 @@ export const useAllAuthStore = defineStore('allauth', {
         loading: false,
         auth_errors: [] as string[],
         auth_response: null as any,
+        emails: [] as any[],
     }),
 
     actions: {
@@ -150,6 +151,57 @@ export const useAllAuthStore = defineStore('allauth', {
                 this.auth_response = response.data;
             } catch (error: any) {
                 this.auth_response = error.response?.data || null;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async getEmails() {
+            try {
+                const response = await allauthApi.getEmailAddresses();
+                this.emails = response.data || [];
+            } catch (error: any) {
+                this.auth_errors = ['Error fetching emails'];
+            }
+        },
+
+        async addEmail(email: string) {
+            this.loading = true;
+            try {
+                const response = await allauthApi.addEmail(email);
+                this.auth_response = response.data;
+                await this.getEmails(); // Refresh email list
+            } catch (error: any) {
+                this.auth_response = error.response?.data || null;
+                this.auth_errors = ['Failed to add email'];
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async deleteEmail(email: string) {
+            this.loading = true;
+            try {
+                const response = await allauthApi.deleteEmail(email);
+                this.auth_response = response.data;
+                await this.getEmails(); // Refresh email list
+            } catch (error: any) {
+                this.auth_response = error.response?.data || null;
+                this.auth_errors = ['Failed to delete email'];
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async markEmailAsPrimary(email: string) {
+            this.loading = true;
+            try {
+                const response = await allauthApi.markEmailAsPrimary(email);
+                this.auth_response = response.data;
+                await this.getEmails(); // Refresh email list
+            } catch (error: any) {
+                this.auth_response = error.response?.data || null;
+                this.auth_errors = ['Failed to mark email as primary'];
             } finally {
                 this.loading = false;
             }
