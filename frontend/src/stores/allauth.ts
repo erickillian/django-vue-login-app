@@ -264,14 +264,14 @@ export const useAllAuthStore = defineStore('allauth', {
                 await allauthApi.logout();
             } catch (error: any) {
                 console.log(error);
+            } finally {
                 // Reset store to its default state
+                this.loading = false;
                 this.isAuthenticated = false;
                 this.user = null;
                 this.loading = false;
                 this.auth_errors = [];
                 this.auth_response = null;
-            } finally {
-                this.loading = false;
             }
         }
     },

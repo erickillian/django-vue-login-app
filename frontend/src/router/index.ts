@@ -95,6 +95,8 @@ router.beforeEach(async (to, from, next) => {
         });
     }
 
+    // console.log(`Navigating to ${to.name}, requiresAuth: ${to.meta.requiresAuth}, isAuthenticated: ${authStore.isAuthenticated}`);
+
     // If authentication hasn't been checked yet, do it now
     if (authStore.isAuthenticated && !to.meta.requiresAuth) {
         next({ name: 'InternalHomePage' });

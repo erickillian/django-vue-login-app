@@ -1,5 +1,6 @@
 <template>
     <div>
+        <router-link :to="{ name: 'ExternalHomePage' }">Back</router-link>
         <h1>Sign Up</h1>
         <form @submit.prevent="handleSignup">
             <div>
