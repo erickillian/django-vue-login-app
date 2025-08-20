@@ -40,12 +40,7 @@
                 <span v-if="allauth.loading">Signing up...</span>
                 <span v-else>Sign Up</span>
             </button>
-            <div v-if="allauth.error" style="color: red; margin-top: 8px;">
-                {{ allauth.error }}
-            </div>
-            <div v-if="localError" style="color: red; margin-top: 8px;">
-                {{ localError }}
-            </div>
+            <AuthErrors />
         </form>
         <p>
             Already have an account?
@@ -58,30 +53,25 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAllAuthStore } from '@/stores/allauth'
+import AuthErrors from '@/components/AuthErrors.vue'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const localError = ref('')
 const allauth = useAllAuthStore()
 
-function clearError() {
-    localError.value = ''
-    allauth.error = ''
-}
-
 async function handleSignup() {
-    clearError()
     if (password.value !== confirmPassword.value) {
-        localError.value = "Passwords do not match"
-        return
+        allauth.auth_errors = ['Passwords to not match'];
+        return;
     }
-    await allauth.signup({ email: email.value, password: password.value })
-    allauth.handeNextAuthFlowStep()
+    allauth.resetAuthErrors();
+    await allauth.signup({ email: email.value, password: password.value });
+    allauth.handeNextAuthFlowStep();
 }
 
 function goToLogin() {
-    router.push('/login')
+    router.push('/login');
 }
 </script>

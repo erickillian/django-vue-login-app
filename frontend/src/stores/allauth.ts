@@ -81,10 +81,11 @@ export const useAllAuthStore = defineStore('allauth', {
                 if (meta?.is_authenticated === false) {
                     // Determine next step from flows array and their properties
                     if (Array.isArray(flows)) {
+
                         const verifyEmailFlow = flows.find((f: any) => f.id === 'verify_email' && f.is_pending);
                         const mfaWebauthnFlow = flows.find((f: any) => f.id === 'mfa_login_webauthn');
                         if (verifyEmailFlow) {
-                            router.push('/verify-email');
+                            router.push({ name: 'VerifyEmailPage' });
                         } else if (mfaWebauthnFlow) {
                             router.push('/login/mfa');
                         } else {
@@ -122,6 +123,7 @@ export const useAllAuthStore = defineStore('allauth', {
                 this.auth_response = response.data;
             } catch (error: any) {
                 this.auth_response = error.response?.data || null;
+                this.auth_errors = error.response?.data?.errors || null;
             } finally {
                 this.loading = false;
             }
@@ -137,6 +139,7 @@ export const useAllAuthStore = defineStore('allauth', {
                 this.auth_response = response.data;
             } catch (error: any) {
                 this.auth_response = error.response?.data || null;
+                this.auth_errors = error.response?.data?.errors || null;
             } finally {
                 this.loading = false;
             }
@@ -152,6 +155,11 @@ export const useAllAuthStore = defineStore('allauth', {
             } finally {
                 this.loading = false;
             }
+        },
+
+        async resetAuthErrors() {
+            this.auth_errors = [];
+            this.auth_response = null;
         },
 
         async requestEmailVerification() {
@@ -171,7 +179,6 @@ export const useAllAuthStore = defineStore('allauth', {
                 const response = await allauthApi.getEmailAddresses();
                 this.emails = response.data.data || [];
             } catch (error: any) {
-                this.auth_errors = ['Error fetching emails'];
             }
         },
 
@@ -183,7 +190,6 @@ export const useAllAuthStore = defineStore('allauth', {
                 await this.getEmails(); // Refresh email list
             } catch (error: any) {
                 this.auth_response = error.response?.data || null;
-                this.auth_errors = ['Failed to add email'];
             } finally {
                 this.loading = false;
             }
@@ -197,7 +203,6 @@ export const useAllAuthStore = defineStore('allauth', {
                 await this.getEmails(); // Refresh email list
             } catch (error: any) {
                 this.auth_response = error.response?.data || null;
-                this.auth_errors = ['Failed to delete email'];
             } finally {
                 this.loading = false;
             }
@@ -211,7 +216,6 @@ export const useAllAuthStore = defineStore('allauth', {
                 await this.getEmails(); // Refresh email list
             } catch (error: any) {
                 this.auth_response = error.response?.data || null;
-                this.auth_errors = ['Failed to mark email as primary'];
             } finally {
                 this.loading = false;
             }
