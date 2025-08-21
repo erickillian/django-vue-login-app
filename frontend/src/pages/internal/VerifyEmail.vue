@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useAllAuthStore } from '@/stores/allauth';
+import { useAllAuthStore } from '@/stores/user';
 import { useRouter } from 'vue-router';
 import AuthErrors from '@/components/AuthErrors.vue'
 

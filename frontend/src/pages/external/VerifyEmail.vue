@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useAllAuthStore } from '@/stores/allauth';
+import { useAllAuthStore } from '@/stores/user';
 
 const code = ref('');
 const resent = ref(false);

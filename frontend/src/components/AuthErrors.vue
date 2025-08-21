@@ -8,7 +8,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, watch } from 'vue'
-import { useAllAuthStore } from '@/stores/allauth'
+import { useAllAuthStore } from '@/stores/user'
 
 // Access the store
 const authStore = useAllAuthStore()

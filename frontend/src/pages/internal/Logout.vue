@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAllAuthStore } from '@/stores/allauth';
+import { useAllAuthStore } from '@/stores/user';
 
 const authStore = useAllAuthStore();
 const router = useRouter();

@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useAllAuthStore } from '@/stores/allauth';
+import { useAllAuthStore } from '@/stores/user';
 
 interface Props {
     code: string;

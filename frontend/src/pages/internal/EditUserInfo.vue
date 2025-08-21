@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
 import { reactive, computed, onMounted } from 'vue'
-import { useAllAuthStore } from '@/stores/allauth'
+import { useAllAuthStore } from '@/stores/user'
 
 const authStore = useAllAuthStore()
 const loading = computed(() => authStore.loading)

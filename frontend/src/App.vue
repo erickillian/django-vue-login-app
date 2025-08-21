@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { useAllAuthStore } from '@/stores/allauth';
+import { useAllAuthStore } from '@/stores/user';
 import { watch } from 'vue';
 import { setupRoutes } from '@/router';
 import { useRouter } from 'vue-router';

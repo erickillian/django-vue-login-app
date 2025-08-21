@@ -11,7 +11,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { useAllAuthStore } from '@/stores/allauth';
+import { useAllAuthStore } from '@/stores/user';
 import { computed } from 'vue';
 
 const router = useRouter()
