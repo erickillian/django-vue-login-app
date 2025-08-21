@@ -47,7 +47,13 @@ const successMessage = ref('');
 const submitResetPassword = async () => {
     successMessage.value = '';
     if (password.value !== confirmPassword.value) {
-        authStore.auth_errors = ['Passwords do not match.'];
+        authStore.auth_errors = [
+            {
+                message: 'New passwords do not match.',
+                code: 'password_mismatch',
+                param: 'password',
+            }
+        ];
         return;
     }
     await authStore.resetPassword(props.code, password.value);

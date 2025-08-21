@@ -58,57 +58,7 @@ export const useUserStore = defineStore('allauth', {
                 this.user = null;
             }
         },
-        async handeNextAuthFlowStep() {
-            // Handle 400: Validation errors
-            if (this.auth_response?.status === 200) {
-                this.auth_errors = null;
-                this.checkAuthentication();
-            }
-            else if (this.auth_response?.status === 400) {
-                this.auth_errors = this.auth_response?.errors?.map(
-                    (e: any) => e.message || 'Login failed'
-                ) || [this.auth_response?.detail || 'Login failed'];
-            }
-            // Handle 401: Authentication or re-authentication required
-            else if (this.auth_response?.status === 401) {
-                const meta = this.auth_response?.meta;
-                const flows = this.auth_response?.data?.flows;
-                this.flows = flows || null;
-                // Not authenticated
-                if (meta?.is_authenticated === false) {
-                    // Determine next step from flows array and their properties
-                    if (Array.isArray(flows)) {
 
-                        const verifyEmailFlow = flows.find((f: any) => f.id === 'verify_email' && f.is_pending);
-                        const mfaWebauthnFlow = flows.find((f: any) => f.id === 'mfa_login_webauthn');
-                        if (verifyEmailFlow) {
-                            router.push({ name: 'VerifyEmailPage' });
-                        } else if (mfaWebauthnFlow) {
-                            router.push('/login/mfa');
-                        } else {
-                            // Default: show login error
-                            this.auth_errors = [
-                                this.auth_response?.data?.detail || 'Authentication required',
-                            ];
-                        }
-                    } else {
-                        // Default: show login error
-                        this.auth_errors = [
-                            this.auth_response?.data?.detail || 'Authentication required',
-                        ];
-                    }
-                    this.flowStage = 'verify_email';
-                    router.push('/verify-email');
-                } else {
-                    // Default: show login error
-                    this.auth_errors = [
-                        this.auth_response?.data?.detail || 'Authentication required',
-                    ];
-                }
-            } else if (this.auth_response?.status === 409) {
-                this.logout();
-            }
-        },
 
         async login({ email, password }: { email: string; password: string }) {
             this.loading = true;
@@ -200,19 +150,73 @@ export const useUserStore = defineStore('allauth', {
                     param: 'none'
                 }];
             } else if (errors?.status === 401) {
+
+
+
                 this.auth_errors = errors.errors ?? [{
                     message: errors.detail || 'Authentication required',
                     code: 'authentication_required',
                     param: 'none'
                 }];
             } else if (errors?.status === 409) {
-                // this.logout();
+                this.logout();
             } else {
                 this.auth_errors = errors.errors ?? [{
                     message: errors?.detail || 'An error occurred',
                     code: 'unknown_error',
                     param: 'none'
                 }];
+            }
+        },
+
+        async handeNextAuthFlowStep() {
+            // Handle 400: Validation errors
+            if (this.auth_response?.status === 200) {
+                this.auth_errors = [];
+                this.checkAuthentication();
+            }
+            else if (this.auth_response?.status === 400) {
+                this.auth_errors = this.auth_response?.errors?.map(
+                    (e: any) => e.message || 'Login failed'
+                ) || [this.auth_response?.detail || 'Login failed'];
+            }
+            // Handle 401: Authentication or re-authentication required
+            else if (this.auth_response?.status === 401) {
+                const meta = this.auth_response?.meta;
+                const flows = this.auth_response?.data?.flows;
+                this.flows = flows || null;
+                // Not authenticated
+                if (meta?.is_authenticated === false) {
+                    // Determine next step from flows array and their properties
+                    if (Array.isArray(flows)) {
+                        const verifyEmailFlow = flows.find((f: any) => f.id === 'verify_email' && f.is_pending);
+                        const mfaWebauthnFlow = flows.find((f: any) => f.id === 'mfa_login_webauthn');
+                        if (verifyEmailFlow) {
+                            router.push({ name: 'VerifyEmailPage' });
+                        } else if (mfaWebauthnFlow) {
+                            // router.push('/login/mfa');
+                        } else {
+                            // Default: show login error
+                            this.auth_errors = [
+                                this.auth_response?.data?.detail || 'Authentication required',
+                            ];
+                        }
+                    } else {
+                        // Default: show login error
+                        this.auth_errors = [
+                            this.auth_response?.data?.detail || 'Authentication required',
+                        ];
+                    }
+                    this.flowStage = 'verify_email';
+                    router.push({ name: 'VerifyEmailPage' });
+                } else {
+                    // Default: show login error
+                    this.auth_errors = [
+                        this.auth_response?.data?.detail || 'Authentication required',
+                    ];
+                }
+            } else if (this.auth_response?.status === 409) {
+                this.logout();
             }
         },
 

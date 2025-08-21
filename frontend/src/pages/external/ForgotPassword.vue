@@ -1,22 +1,20 @@
 <template>
-  <div>
-    <h2>Request Password Reset</h2>
-    <form @submit.prevent="submitRequestPasswordReset">
-      <label>
-        Email:
-        <input v-model="email" type="email" :disabled="loading" required />
-      </label>
-      <br />
-      <button type="submit" :disabled="loading">Request Reset</button>
-      <span v-if="loading" style="margin-left: 10px;">Loading...</span>
-      <AuthErrors />
-      <p v-if="successMessage" style="color:green">{{ successMessage }}</p>
-    </form>
+    <div>
+        <h2>Request Password Reset</h2>
+        <form @submit.prevent="submitRequestPasswordReset">
+            <label>
+                Email:
+                <input v-model="email" type="email" :disabled="loading" required />
+            </label>
+            <br />
+            <button type="submit" :disabled="loading">Request Reset</button>
+            <span v-if="loading" style="margin-left: 10px;">Loading...</span>
+            <AuthErrors />
+            <p v-if="successMessage" style="color:green">{{ successMessage }}</p>
+        </form>
 
-    <p>
-      <router-link to="/login">Back to Login</router-link>
-    </p>
-  </div>
+        <router-link to="/login">Back to Login</router-link>
+    </div>
 </template>
 
 <script setup lang="ts">

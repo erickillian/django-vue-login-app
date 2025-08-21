@@ -59,16 +59,22 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const allauth = useUserStore()
+const userStore = useUserStore()
 
 async function handleSignup() {
     if (password.value !== confirmPassword.value) {
-        allauth.auth_errors = ['Passwords to not match'];
+        userStore.auth_errors = [
+            {
+                message: 'New passwords do not match.',
+                code: 'password_mismatch',
+                param: 'password',
+            }
+        ];
         return;
     }
-    allauth.resetAuthErrors();
-    await allauth.signup({ email: email.value, password: password.value });
-    allauth.handeNextAuthFlowStep();
+    userStore.resetAuthErrors();
+    await userStore.signup({ email: email.value, password: password.value });
+    userStore.handeNextAuthFlowStep();
 }
 
 function goToLogin() {

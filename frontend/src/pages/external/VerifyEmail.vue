@@ -18,6 +18,7 @@
         </p>
         <p v-if="resent" style="color:green">Verification code resent!</p>
     </div>
+    <router-link :to="{ name: 'SignUpPage' }">Sign Up</router-link>
 </template>
 
 <script setup lang="ts">
