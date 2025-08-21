@@ -21,9 +21,9 @@
 
 <script lang="ts" setup>
 import { reactive, computed, onMounted } from 'vue'
-import { useAllAuthStore } from '@/stores/user'
+import { useUserStore } from '@/stores/user'
 
-const authStore = useAllAuthStore()
+const authStore = useUserStore()
 const loading = computed(() => authStore.loading)
 
 const form = reactive({

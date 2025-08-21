@@ -11,11 +11,11 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { useAllAuthStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 import { computed } from 'vue';
 
 const router = useRouter()
-const allAuthStore = useAllAuthStore();
+const allAuthStore = useUserStore();
 
 const user = computed(() => allAuthStore.user_self);
 

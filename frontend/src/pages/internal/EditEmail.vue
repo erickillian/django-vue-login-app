@@ -35,7 +35,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import { useAllAuthStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 import { useRouter } from 'vue-router';
 import AuthErrors from '@/components/AuthErrors.vue';
 
@@ -46,7 +46,7 @@ export default defineComponent({
     AuthErrors,
   },
   setup() {
-    const store = useAllAuthStore();
+    const store = useUserStore();
     const newEmail = ref('');
     const verificationRequested = ref(false);
     const router = useRouter();

@@ -15,12 +15,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useAllAuthStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 import { useRouter } from 'vue-router';
 import AuthErrors from '@/components/AuthErrors.vue'
 
 const code = ref('');
-const authStore = useAllAuthStore();
+const authStore = useUserStore();
 const router = useRouter();
 
 const verifyEmail = async () => {

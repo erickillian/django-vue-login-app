@@ -52,14 +52,14 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAllAuthStore } from '@/stores/user'
+import { useUserStore } from '@/stores/user'
 import AuthErrors from '@/components/AuthErrors.vue'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const allauth = useAllAuthStore()
+const allauth = useUserStore()
 
 async function handleSignup() {
     if (password.value !== confirmPassword.value) {

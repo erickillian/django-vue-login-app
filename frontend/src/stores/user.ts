@@ -3,7 +3,7 @@ import router from '@/router'; // Adjust path to your router
 import * as allauthApi from '@/api/allauth';
 import * as userApi from '@/api/user';
 
-export const useAllAuthStore = defineStore('allauth', {
+export const useUserStore = defineStore('allauth', {
     state: () => ({
         isAuthenticated: false,
         user: null as null | Record<string, any>,

@@ -28,13 +28,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useAllAuthStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 import AuthErrors from '@/components/AuthErrors.vue';
 
 const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
-const authStore = useAllAuthStore();
+const authStore = useUserStore();
 const loading = computed(() => authStore.loading);
 const successMessage = ref('');
 

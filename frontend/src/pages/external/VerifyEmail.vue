@@ -22,11 +22,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useAllAuthStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 
 const code = ref('');
 const resent = ref(false);
-const authStore = useAllAuthStore();
+const authStore = useUserStore();
 
 const verifyEmail = async () => {
     await authStore.verifyEmail(code.value);

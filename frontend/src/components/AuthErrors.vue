@@ -8,10 +8,10 @@
 
 <script lang="ts" setup>
 import { computed, onMounted } from 'vue'
-import { useAllAuthStore } from '@/stores/user'
+import { useUserStore } from '@/stores/user'
 
 // Access the store
-const authStore = useAllAuthStore()
+const authStore = useUserStore()
 
 // Reset auth errors on component mount
 onMounted(() => {

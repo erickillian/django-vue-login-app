@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import router, { setupRoutes } from './router';
-import { useAllAuthStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 import App from './App.vue';
 import { watch } from 'vue';
 
@@ -13,7 +13,7 @@ pinia.use(piniaPluginPersistedstate);
 
 app.use(pinia);
 
-const authStore = useAllAuthStore();
+const authStore = useUserStore();
 setupRoutes(authStore);
 
 if (authStore.isAuthenticated) {

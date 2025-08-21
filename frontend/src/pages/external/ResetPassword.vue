@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useAllAuthStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 
 interface Props {
     code: string;
@@ -40,7 +40,7 @@ console.log(props.code); // Debugging line to check the key value
 
 const password = ref('');
 const confirmPassword = ref('');
-const authStore = useAllAuthStore();
+const authStore = useUserStore();
 const loading = computed(() => authStore.loading);
 const successMessage = ref('');
 

@@ -23,12 +23,12 @@
   
 <script setup lang="ts">
     import { computed, ref } from 'vue';
-    import { useAllAuthStore } from '@/stores/user';
+    import { useUserStore } from '@/stores/user';
     import AuthErrors from '@/components/AuthErrors.vue';
 
     const email = ref('');
     const password = ref('');
-    const authStore = useAllAuthStore();
+    const authStore = useUserStore();
     const loading = computed(() => authStore.loading);
 
     const login = async () => {

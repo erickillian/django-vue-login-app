@@ -9,9 +9,9 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAllAuthStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 
-const authStore = useAllAuthStore();
+const authStore = useUserStore();
 const router = useRouter();
 const loading = computed(() => authStore.loading);
 

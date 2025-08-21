@@ -3,12 +3,12 @@
 </template>
 
 <script setup>
-import { useAllAuthStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 import { watch } from 'vue';
 import { setupRoutes } from '@/router';
 import { useRouter } from 'vue-router';
 
-const allAuthStore = useAllAuthStore();
+const allAuthStore = useUserStore();
 const router = useRouter();
 
 // also react to changes (login/logout)
