@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAllAuthStore } from '@/stores/user'
 
 // Access the store
