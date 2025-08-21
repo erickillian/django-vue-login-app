@@ -6,33 +6,31 @@
                 Verification Code:
                 <input v-model="code" type="text" required />
             </label>
-            <br />
             <button type="submit">Verify Email</button>
-            <ul v-if="authStore.auth_errors && Array.isArray(authStore.auth_errors)">
-                <li v-for="(error, index) in authStore.auth_errors" :key="index" style="color:red">{{ error }}</li>
-            </ul>
-            <p v-else-if="authStore.auth_errors" style="color:red">{{ authStore.auth_errors }}</p>
         </form>
+        <AuthErrors />
+        <button @click="goBack">Back</button>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useAllAuthStore } from '@/stores/allauth';
+import { useRouter } from 'vue-router';
+import AuthErrors from '@/components/AuthErrors.vue'
 
 const code = ref('');
-const resent = ref(false);
 const authStore = useAllAuthStore();
+const router = useRouter();
 
 const verifyEmail = async () => {
-    await authStore.verifyEmail(code.value);
-    authStore.handeNextAuthFlowStep();
+    try {
+        await authStore.verifyEmail(code.value);
+        router.push({ name: 'EditEmailPage' });
+    } catch (error) {}
+};
+const goBack = () => {
+    router.push({ name: 'EditEmailPage' });
 };
 
-const resendCode = async () => {
-    await authStore.requestEmailVerification();
-    authStore.handeNextAuthFlowStep();
-    resent.value = true;
-    setTimeout(() => (resent.value = false), 3000);
-};
 </script>

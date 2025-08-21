@@ -19,22 +19,17 @@
             <br />
             <button type="submit" :disabled="loading">Change Password</button>
             <span v-if="loading" style="margin-left: 10px;">Loading...</span>
-            <ul v-if="authStore.auth_errors && Array.isArray(authStore.auth_errors)">
-                <li v-for="(error, index) in authStore.auth_errors" :key="index" style="color:red">{{ error }}</li>
-            </ul>
-            <p v-else-if="authStore.auth_errors" style="color:red">{{ authStore.auth_errors }}</p>
+            <AuthErrors />
             <p v-if="successMessage" style="color:green">{{ successMessage }}</p>
         </form>
-
-        <p>
-            <router-link to="/profile">Back to Profile</router-link>
-        </p>
+        <router-link to="/">Back to Profile</router-link>
     </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useAllAuthStore } from '@/stores/allauth';
+import AuthErrors from '@/components/AuthErrors.vue';
 
 const currentPassword = ref('');
 const newPassword = ref('');
@@ -46,7 +41,13 @@ const successMessage = ref('');
 const submitChangePassword = async () => {
     successMessage.value = '';
     if (newPassword.value !== confirmPassword.value) {
-        authStore.auth_errors = ['New passwords do not match.'];
+        authStore.auth_errors = [
+            {
+                message: 'New passwords do not match.',
+                code: 'password_mismatch',
+                param: 'password',
+            }
+        ];
         return;
     }
     await authStore.changePassword({

@@ -9,7 +9,7 @@ export const useAllAuthStore = defineStore('allauth', {
         user: null as null | Record<string, any>,
         user_self: null as any,
         loading: false,
-        auth_errors: [] as string[],
+        auth_errors: [] as AuthError[],
         auth_response: null as any,
         emails: [] as any[],
     }),
@@ -38,17 +38,14 @@ export const useAllAuthStore = defineStore('allauth', {
             this.loading = true;
             try {
                 const response = await userApi.updateUser(data);
-                this.user_self = response.data?.data?.user || this.user;
-                return response;
+                this.user_self = response.data;
             } catch (error: any) {
-                this.auth_errors = error.response?.data?.errors?.map(
-                    (e: any) => e.message || 'User update failed'
-                ) || [error.response?.data?.detail || 'User update failed'];
-                throw error;
+                this.handleAuthErrors(error.response?.data);
             } finally {
                 this.loading = false;
             }
         },
+
         async checkAuthentication() {
             try {
                 this.getUserInfo();
@@ -116,14 +113,12 @@ export const useAllAuthStore = defineStore('allauth', {
         async login({ email, password }: { email: string; password: string }) {
             this.loading = true;
             this.email = email;
-            this.authError = null;
-            this.auth_errors = [];
+            this.resetAuthErrors();
             try {
                 const response = await allauthApi.login({ email, password });
                 this.auth_response = response.data;
             } catch (error: any) {
-                this.auth_response = error.response?.data || null;
-                this.auth_errors = error.response?.data?.errors || null;
+                this.handleAuthErrors(error.response?.data);
             } finally {
                 this.loading = false;
             }
@@ -132,8 +127,7 @@ export const useAllAuthStore = defineStore('allauth', {
         async signup({ email, password }: { email: string; password: string }) {
             this.loading = true;
             this.email = email;
-            this.authError = null;
-            this.auth_errors = [];
+            this.resetAuthErrors();
             try {
                 const response = await allauthApi.signUp({ email, password });
                 this.auth_response = response.data;
@@ -150,8 +144,9 @@ export const useAllAuthStore = defineStore('allauth', {
             try {
                 const response = await allauthApi.verifyEmail(token);
                 this.auth_response = response.data;
-            } catch (error: any) {
-                this.auth_response = error.response?.data || null;
+            } catch (errors: any) {
+                this.handleAuthErrors(errors.response?.data);
+                throw errors.response?.data;
             } finally {
                 this.loading = false;
             }
@@ -164,6 +159,7 @@ export const useAllAuthStore = defineStore('allauth', {
 
         async requestEmailVerification() {
             this.loading = true;
+            this.resetAuthErrors();
             try {
                 const response = await allauthApi.requestEmailVerification(this.email);
                 this.auth_response = response.data;
@@ -183,15 +179,40 @@ export const useAllAuthStore = defineStore('allauth', {
         },
 
         async addEmail(email: string) {
+            this.resetAuthErrors();
             this.loading = true;
             try {
                 const response = await allauthApi.addEmail(email);
                 this.auth_response = response.data;
                 await this.getEmails(); // Refresh email list
-            } catch (error: any) {
-                this.auth_response = error.response?.data || null;
+            } catch (errors: any) {
+                this.handleAuthErrors(errors.response?.data);
             } finally {
                 this.loading = false;
+            }
+        },
+
+        async handleAuthErrors(errors: AuthErrorResponse) {
+            if (errors?.status === 400) {
+                this.auth_errors = errors.errors ?? [{
+                    message: errors.detail || 'An error occurred',
+                    code: 'unknown_error',
+                    param: 'none'
+                }];
+            } else if (errors?.status === 401) {
+                this.auth_errors = errors.errors ?? [{
+                    message: errors.detail || 'Authentication required',
+                    code: 'authentication_required',
+                    param: 'none'
+                }];
+            } else if (errors?.status === 409) {
+                // this.logout();
+            } else {
+                this.auth_errors = errors.errors ?? [{
+                    message: errors?.detail || 'An error occurred',
+                    code: 'unknown_error',
+                    param: 'none'
+                }];
             }
         },
 
@@ -201,8 +222,8 @@ export const useAllAuthStore = defineStore('allauth', {
                 const response = await allauthApi.deleteEmail(email);
                 this.auth_response = response.data;
                 await this.getEmails(); // Refresh email list
-            } catch (error: any) {
-                this.auth_response = error.response?.data || null;
+            } catch (errors: any) {
+                this.handleAuthErrors(errors);
             } finally {
                 this.loading = false;
             }
@@ -222,12 +243,14 @@ export const useAllAuthStore = defineStore('allauth', {
         },
 
         async changePassword({ current_password, new_password }: { current_password: string; new_password: string }) {
+            this.resetAuthErrors();
             this.loading = true;
             try {
                 const response = await allauthApi.changePassword({
                     current_password: current_password,
                     new_password: new_password,
                 });
+                this.auth_response = response.data;
             } catch (error: any) {
                 this.auth_response = error.response?.data || null;
                 this.auth_errors = error.response?.data?.errors?.map(
@@ -277,7 +300,6 @@ export const useAllAuthStore = defineStore('allauth', {
             try {
                 await allauthApi.logout();
             } catch (error: any) {
-                console.log(error);
             } finally {
                 // Reset store to its default state
                 this.loading = false;

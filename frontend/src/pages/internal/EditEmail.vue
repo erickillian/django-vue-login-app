@@ -2,41 +2,34 @@
   <div class="edit-email">
     <h2>Edit Email Addresses</h2>
 
-    <!-- Display any errors -->
-    <div v-if="authErrors.length" class="error-messages">
-      <p v-for="(error, index) in authErrors" :key="index" class="error">{{ error }}</p>
-    </div>
-
     <!-- Current Emails -->
     <div v-if="emails.length > 0">
       <h3>Your Emails</h3>
       <ul>
         <li v-for="emailObj in emails" :key="emailObj.email">
         <span>{{ emailObj.email }}</span>
+        <span v-if="emailObj.verified"> ✅ </span>
+        <span v-else> ❌ </span>
         <button 
             @click="handleMarkAsPrimary(emailObj.email)" 
-            :disabled="!emailObj.verified || emailObj.primary"
+            v-if="emailObj.verified && !emailObj.primary"
             title="You can only mark a verified, non-primary email as primary"
         >
             Mark as Primary
         </button>
         <button @click="handleDeleteEmail(emailObj.email)">Delete</button>
-        <button :disabled="emailObj.verified" @click="handleVerifyEmail(emailObj.email)">Verify</button>
+        <button v-if="!emailObj.verified" @click="handleVerifyEmail(emailObj.email)">Verify</button>
         </li>
-
       </ul>
     </div>
 
     <!-- Add New Email Form -->
-    <div class="add-email">
+    <form @submit.prevent="handleAddEmail">
       <input v-model="newEmail" type="email" placeholder="Enter new email" />
       <button @click="handleAddEmail">Add Email</button>
-    </div>
-
-    <!-- Email Verification -->
-    <div v-if="verificationRequested" class="verification-info">
-      <p>A verification email has been sent to your new address.</p>
-    </div>
+    </form>
+    <AuthErrors />
+    <router-link to="/">Back to Profile</router-link>
   </div>
 </template>
 
@@ -44,10 +37,14 @@
 import { defineComponent, ref, computed } from 'vue';
 import { useAllAuthStore } from '@/stores/allauth';
 import { useRouter } from 'vue-router';
+import AuthErrors from '@/components/AuthErrors.vue';
 
 
 export default defineComponent({
   name: 'EditEmail',
+  components: {
+    AuthErrors,
+  },
   setup() {
     const store = useAllAuthStore();
     const newEmail = ref('');

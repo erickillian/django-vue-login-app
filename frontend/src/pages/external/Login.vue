@@ -17,24 +17,22 @@
             <span v-if="loading" style="margin-left: 10px;">Loading...</span>
             <AuthErrors />
     </form>
-    <p>
-        <router-link :to="{ name: 'ForgotPasswordPage' }">Forgot Password</router-link>
-    </p>
+    <router-link :to="{ name: 'ForgotPasswordPage' }">Forgot Password</router-link>
     </div>
   </template>
   
-  <script setup lang="ts">
-  import { computed, ref } from 'vue';
-  import { useAllAuthStore } from '@/stores/allauth';
-  import AuthErrors from '@/components/AuthErrors.vue';
+<script setup lang="ts">
+    import { computed, ref } from 'vue';
+    import { useAllAuthStore } from '@/stores/allauth';
+    import AuthErrors from '@/components/AuthErrors.vue';
 
-  const email = ref('');
-  const password = ref('');
-  const authStore = useAllAuthStore();
-  const loading = computed(() => authStore.loading);
+    const email = ref('');
+    const password = ref('');
+    const authStore = useAllAuthStore();
+    const loading = computed(() => authStore.loading);
 
-  const login = async () => {
-      await authStore.login({ email: email.value, password: password.value });
-      authStore.handeNextAuthFlowStep();
-  };
+    const login = async () => {
+        await authStore.login({ email: email.value, password: password.value });
+        authStore.handeNextAuthFlowStep();
+    };
 </script>
