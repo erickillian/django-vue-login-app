@@ -67,8 +67,13 @@ export const useUserStore = defineStore('allauth', {
             try {
                 const response = await allauthApi.login({ email, password });
                 this.auth_response = response.data;
+                this.user = response.data?.data?.user || null;
+                this.isAuthenticated = true;
             } catch (error: any) {
                 this.handleAuthErrors(error.response?.data);
+                if (error.response?.status === 409) {
+                    this.login({ email, password });
+                }
             } finally {
                 this.loading = false;
             }
@@ -81,9 +86,10 @@ export const useUserStore = defineStore('allauth', {
             try {
                 const response = await allauthApi.signUp({ email, password });
                 this.auth_response = response.data;
+                this.user = response.data?.data?.user || null;
+                this.isAuthenticated = true;
             } catch (error: any) {
-                this.auth_response = error.response?.data || null;
-                this.auth_errors = error.response?.data?.errors || null;
+                this.handleAuthErrors(error.response?.data);
             } finally {
                 this.loading = false;
             }
@@ -150,9 +156,37 @@ export const useUserStore = defineStore('allauth', {
                     param: 'none'
                 }];
             } else if (errors?.status === 401) {
+                const is_authenticated: boolean | undefined = errors?.meta?.is_authenticated;
+                const is_authenticated_exists = typeof is_authenticated === 'boolean';
+                const flows: AuthFlow[] = errors?.data?.flows ?? [];
 
+                if (is_authenticated_exists) {
+                    this.isAuthenticated = is_authenticated;
+                }
 
+                if (flows.length > 0 && is_authenticated_exists) {
+                    // get a list of pending flows
+                    const pendingFlows = flows.filter((flow: AuthFlow) => flow.is_pending);
 
+                    // just handle the first pending flow.  Next error will handle the next one.
+                    if (pendingFlows.length > 0) {
+                        const flow = pendingFlows[0];
+                        if (flow.id === 'verify_email') {
+                            router.push({ name: 'VerifyEmailPage' });
+                            return;
+                        } else if (flow.id === 'mfa_login_webauthn') {
+                            // Handle MFA WebAuthn flow
+                            // router.push('/login/mfa');
+                        } else {
+                            this.auth_errors = [{
+                                message: errors.detail || 'Authentication required',
+                                code: 'authentication_required',
+                                param: 'none'
+                            }];
+                        }
+                    }
+
+                }
                 this.auth_errors = errors.errors ?? [{
                     message: errors.detail || 'Authentication required',
                     code: 'authentication_required',
@@ -160,8 +194,14 @@ export const useUserStore = defineStore('allauth', {
                 }];
             } else if (errors?.status === 409) {
                 this.logout();
-            } else {
+            } else if (errors?.status === 429) {
                 this.auth_errors = errors.errors ?? [{
+                    message: errors.detail || 'Too many requests, please try again later',
+                    code: 'rate_limit_exceeded',
+                    param: 'none'
+                }];
+            } else {
+                this.auth_errors = errors?.errors ?? [{
                     message: errors?.detail || 'An error occurred',
                     code: 'unknown_error',
                     param: 'none'
@@ -169,56 +209,55 @@ export const useUserStore = defineStore('allauth', {
             }
         },
 
-        async handeNextAuthFlowStep() {
-            // Handle 400: Validation errors
-            if (this.auth_response?.status === 200) {
-                this.auth_errors = [];
-                this.checkAuthentication();
-            }
-            else if (this.auth_response?.status === 400) {
-                this.auth_errors = this.auth_response?.errors?.map(
-                    (e: any) => e.message || 'Login failed'
-                ) || [this.auth_response?.detail || 'Login failed'];
-            }
-            // Handle 401: Authentication or re-authentication required
-            else if (this.auth_response?.status === 401) {
-                const meta = this.auth_response?.meta;
-                const flows = this.auth_response?.data?.flows;
-                this.flows = flows || null;
-                // Not authenticated
-                if (meta?.is_authenticated === false) {
-                    // Determine next step from flows array and their properties
-                    if (Array.isArray(flows)) {
-                        const verifyEmailFlow = flows.find((f: any) => f.id === 'verify_email' && f.is_pending);
-                        const mfaWebauthnFlow = flows.find((f: any) => f.id === 'mfa_login_webauthn');
-                        if (verifyEmailFlow) {
-                            router.push({ name: 'VerifyEmailPage' });
-                        } else if (mfaWebauthnFlow) {
-                            // router.push('/login/mfa');
-                        } else {
-                            // Default: show login error
-                            this.auth_errors = [
-                                this.auth_response?.data?.detail || 'Authentication required',
-                            ];
-                        }
-                    } else {
-                        // Default: show login error
-                        this.auth_errors = [
-                            this.auth_response?.data?.detail || 'Authentication required',
-                        ];
-                    }
-                    this.flowStage = 'verify_email';
-                    router.push({ name: 'VerifyEmailPage' });
-                } else {
-                    // Default: show login error
-                    this.auth_errors = [
-                        this.auth_response?.data?.detail || 'Authentication required',
-                    ];
-                }
-            } else if (this.auth_response?.status === 409) {
-                this.logout();
-            }
-        },
+        // async handeNextAuthFlowStep() {
+        //     // Handle 400: Validation errors
+        //     if (this.auth_response?.status === 200) {
+        //         this.auth_errors = [];
+        //         this.checkAuthentication();
+        //     }
+        //     else if (this.auth_response?.status === 400) {
+        //         this.auth_errors = this.auth_response?.errors?.map(
+        //             (e: any) => e.message || 'Login failed'
+        //         ) || [this.auth_response?.detail || 'Login failed'];
+        //     }
+        //     // Handle 401: Authentication or re-authentication required
+        //     else if (this.auth_response?.status === 401) {
+        //         const meta = this.auth_response?.meta;
+        //         const flows = this.auth_response?.data?.flows;
+        //         // Not authenticated
+        //         if (meta?.is_authenticated === false) {
+        //             // Determine next step from flows array and their properties
+        //             if (Array.isArray(flows)) {
+        //                 const verifyEmailFlow = flows.find((f: any) => f.id === 'verify_email' && f.is_pending);
+        //                 const mfaWebauthnFlow = flows.find((f: any) => f.id === 'mfa_login_webauthn');
+        //                 if (verifyEmailFlow) {
+        //                     router.push({ name: 'VerifyEmailPage' });
+        //                 } else if (mfaWebauthnFlow) {
+        //                     // router.push('/login/mfa');
+        //                 } else {
+        //                     // Default: show login error
+        //                     this.auth_errors = [
+        //                         this.auth_response?.data?.detail || 'Authentication required',
+        //                     ];
+        //                 }
+        //             } else {
+        //                 // Default: show login error
+        //                 this.auth_errors = [
+        //                     this.auth_response?.data?.detail || 'Authentication required',
+        //                 ];
+        //             }
+        //             this.flowStage = 'verify_email';
+        //             router.push({ name: 'VerifyEmailPage' });
+        //         } else {
+        //             // Default: show login error
+        //             this.auth_errors = [
+        //                 this.auth_response?.data?.detail || 'Authentication required',
+        //             ];
+        //         }
+        //     } else if (this.auth_response?.status === 409) {
+        //         this.logout();
+        //     }
+        // },
 
         async deleteEmail(email: string) {
             this.loading = true;

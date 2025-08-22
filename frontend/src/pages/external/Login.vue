@@ -33,6 +33,5 @@
 
     const login = async () => {
         await authStore.login({ email: email.value, password: password.value });
-        authStore.handeNextAuthFlowStep();
     };
 </script>

@@ -8,10 +8,7 @@
             </label>
             <br />
             <button type="submit">Verify Email</button>
-            <ul v-if="authStore.auth_errors && Array.isArray(authStore.auth_errors)">
-                <li v-for="(error, index) in authStore.auth_errors" :key="index" style="color:red">{{ error }}</li>
-            </ul>
-            <p v-else-if="authStore.auth_errors" style="color:red">{{ authStore.auth_errors }}</p>
+            <AuthErrors />
         </form>
         <p>
             Didn't get a code? <button @click="resendCode" type="button">Request a new Code</button>
@@ -24,19 +21,23 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useUserStore } from '@/stores/user';
+import AuthErrors from '@/components/AuthErrors.vue';
+import { useRouter } from 'vue-router';
 
 const code = ref('');
 const resent = ref(false);
-const authStore = useUserStore();
+const userStore = useUserStore();
+const router = useRouter();
 
 const verifyEmail = async () => {
-    await authStore.verifyEmail(code.value);
-    authStore.handeNextAuthFlowStep();
+    try {
+        await userStore.verifyEmail(code.value);
+        router.push({ name: 'InternalHomePage' });
+    } catch (error) {}
 };
 
 const resendCode = async () => {
-    await authStore.requestEmailVerification();
-    authStore.handeNextAuthFlowStep();
+    await userStore.requestEmailVerification();
     resent.value = true;
     setTimeout(() => (resent.value = false), 3000);
 };

@@ -10,7 +10,7 @@
                     type="email"
                     id="email"
                     required
-                    :disabled="allauth.loading"
+                    :disabled="userStore.loading"
                     @input="clearError"
                 />
             </div>
@@ -21,7 +21,7 @@
                     type="password"
                     id="password"
                     required
-                    :disabled="allauth.loading"
+                    :disabled="userStore.loading"
                     @input="clearError"
                 />
             </div>
@@ -32,19 +32,19 @@
                     type="password"
                     id="confirmPassword"
                     required
-                    :disabled="allauth.loading"
+                    :disabled="userStore.loading"
                     @input="clearError"
                 />
             </div>
-            <button type="submit" :disabled="allauth.loading">
-                <span v-if="allauth.loading">Signing up...</span>
+            <button type="submit" :disabled="userStore.loading">
+                <span v-if="userStore.loading">Signing up...</span>
                 <span v-else>Sign Up</span>
             </button>
             <AuthErrors />
         </form>
         <p>
             Already have an account?
-            <a href="#" @click.prevent="goToLogin">Login</a>
+            <router-link :to="{ name: 'LoginPage' }">Login</router-link>
         </p>
     </div>
 </template>
@@ -74,10 +74,6 @@ async function handleSignup() {
     }
     userStore.resetAuthErrors();
     await userStore.signup({ email: email.value, password: password.value });
-    userStore.handeNextAuthFlowStep();
 }
 
-function goToLogin() {
-    router.push('/login');
-}
 </script>

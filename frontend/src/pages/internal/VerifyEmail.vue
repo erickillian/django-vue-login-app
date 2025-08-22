@@ -20,15 +20,16 @@ import { useRouter } from 'vue-router';
 import AuthErrors from '@/components/AuthErrors.vue'
 
 const code = ref('');
-const authStore = useUserStore();
+const userStore = useUserStore();
 const router = useRouter();
 
 const verifyEmail = async () => {
     try {
-        await authStore.verifyEmail(code.value);
+        await userStore.verifyEmail(code.value);
         router.push({ name: 'EditEmailPage' });
     } catch (error) {}
 };
+
 const goBack = () => {
     router.push({ name: 'EditEmailPage' });
 };

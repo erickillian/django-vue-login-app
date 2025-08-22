@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useUserStore } from '@/stores/user';
 
 // public routes
 const publicRoutes = [
@@ -15,7 +14,7 @@ const publicRoutes = [
 const internalRoutes = [
     { path: '/', name: 'InternalHomePage', component: () => import('@/pages/internal/Home.vue') },
     { path: '/logout', name: 'LogoutPage', component: () => import('@/pages/internal/Logout.vue') },
-    { path: '/change-password', name: 'ChangePasswordPage', component: () => import('@/pages/internal/ChangePassword.vue') },
+    { path: '/settings/change-password', name: 'ChangePasswordPage', component: () => import('@/pages/internal/ChangePassword.vue') },
     { path: '/settings/edit-email', name: 'EditEmailPage', component: () => import('@/pages/internal/EditEmail.vue') },
     { path: '/settings/verify-email', name: 'VerifyEmailPage', component: () => import('@/pages/internal/VerifyEmail.vue') },
     { path: '/settings/edit', name: 'EditUserInfoPage', component: () => import('@/pages/internal/EditUserInfo.vue') },
