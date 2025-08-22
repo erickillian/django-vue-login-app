@@ -8,23 +8,23 @@ import { watch } from 'vue';
 import { setupRoutes } from '@/router';
 import { useRouter } from 'vue-router';
 
-const allAuthStore = useUserStore();
+const userStore = useUserStore();
 const router = useRouter();
 
-// also react to changes (login/logout)
+setupRoutes(userStore);
+
+// change the routes based on authentication state
 watch(
-    () => allAuthStore.isAuthenticated,
+    () => userStore.isAuthenticated,
     (newVal, oldVal) => {
         if (newVal !== oldVal) {
-            setupRoutes(allAuthStore);
+            setupRoutes(userStore);
             if (newVal) {
-                console.log('User logged in');
                 router.push({ name: 'InternalHomePage' })
             } else {
-                console.log('User logged out');
                 router.push({ name: 'ExternalHomePage' })
             }
-            allAuthStore.checkAuthentication();
+            userStore.checkAuthentication();
             router.push(newVal ? '/' : '/login');
         }
     }

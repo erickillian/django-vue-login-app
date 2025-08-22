@@ -14,10 +14,7 @@
             <br />
             <button type="submit" :disabled="loading">Reset Password</button>
             <span v-if="loading" style="margin-left: 10px;">Loading...</span>
-            <ul v-if="authStore.auth_errors && Array.isArray(authStore.auth_errors)">
-                <li v-for="(error, index) in authStore.auth_errors" :key="index" style="color:red">{{ error }}</li>
-            </ul>
-            <p v-else-if="authStore.auth_errors" style="color:red">{{ authStore.auth_errors }}</p>
+            <AuthErrors />
             <p v-if="successMessage" style="color:green">{{ successMessage }}</p>
         </form>
 
@@ -30,6 +27,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useUserStore } from '@/stores/user';
+import AuthErrors from '@/components/AuthErrors.vue';
 
 interface Props {
     code: string;
@@ -57,6 +55,5 @@ const submitResetPassword = async () => {
         return;
     }
     await authStore.resetPassword(props.code, password.value);
-    authStore.handeNextAuthFlowStep();
 };
 </script>

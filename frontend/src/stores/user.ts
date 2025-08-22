@@ -211,56 +211,6 @@ export const useUserStore = defineStore('allauth', {
             }
         },
 
-        // async handeNextAuthFlowStep() {
-        //     // Handle 400: Validation errors
-        //     if (this.auth_response?.status === 200) {
-        //         this.auth_errors = [];
-        //         this.checkAuthentication();
-        //     }
-        //     else if (this.auth_response?.status === 400) {
-        //         this.auth_errors = this.auth_response?.errors?.map(
-        //             (e: any) => e.message || 'Login failed'
-        //         ) || [this.auth_response?.detail || 'Login failed'];
-        //     }
-        //     // Handle 401: Authentication or re-authentication required
-        //     else if (this.auth_response?.status === 401) {
-        //         const meta = this.auth_response?.meta;
-        //         const flows = this.auth_response?.data?.flows;
-        //         // Not authenticated
-        //         if (meta?.is_authenticated === false) {
-        //             // Determine next step from flows array and their properties
-        //             if (Array.isArray(flows)) {
-        //                 const verifyEmailFlow = flows.find((f: any) => f.id === 'verify_email' && f.is_pending);
-        //                 const mfaWebauthnFlow = flows.find((f: any) => f.id === 'mfa_login_webauthn');
-        //                 if (verifyEmailFlow) {
-        //                     router.push({ name: 'VerifyEmailPage' });
-        //                 } else if (mfaWebauthnFlow) {
-        //                     // router.push('/login/mfa');
-        //                 } else {
-        //                     // Default: show login error
-        //                     this.auth_errors = [
-        //                         this.auth_response?.data?.detail || 'Authentication required',
-        //                     ];
-        //                 }
-        //             } else {
-        //                 // Default: show login error
-        //                 this.auth_errors = [
-        //                     this.auth_response?.data?.detail || 'Authentication required',
-        //                 ];
-        //             }
-        //             this.flowStage = 'verify_email';
-        //             router.push({ name: 'VerifyEmailPage' });
-        //         } else {
-        //             // Default: show login error
-        //             this.auth_errors = [
-        //                 this.auth_response?.data?.detail || 'Authentication required',
-        //             ];
-        //         }
-        //     } else if (this.auth_response?.status === 409) {
-        //         this.logout();
-        //     }
-        // },
-
         async deleteEmail(email: string) {
             this.loading = true;
             try {
@@ -329,12 +279,10 @@ export const useUserStore = defineStore('allauth', {
             this.loading = true;
             try {
                 const response = await allauthApi.resetPassword(password, key);
-                this.auth_response = response.data;
+                this.user = response.data?.data?.user || null;
+                this.isAuthenticated = true;
             } catch (error: any) {
-                this.auth_response = error.response?.data || null;
-                this.auth_errors = error.response?.data?.errors?.map(
-                    (e: any) => e.message || 'Password reset failed'
-                ) || [error.response?.data?.detail || 'Password reset failed'];
+                this.handleAuthErrors(error.response?.data);
             } finally {
                 this.loading = false;
             }
