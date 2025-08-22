@@ -7,7 +7,8 @@ export const useUserStore = defineStore('allauth', {
     state: () => ({
         isAuthenticated: false,
         user: null as null | Record<string, any>,
-        user_self: null as any,
+        user_self: null as null | User,
+        user_self_errors: null as null | UserErrors,
         loading: false,
         auth_errors: [] as AuthError[],
         auth_response: null as any,
@@ -36,11 +37,12 @@ export const useUserStore = defineStore('allauth', {
 
         async updateUser(data: Record<string, any>) {
             this.loading = true;
+            this.user_self_errors = null;
             try {
                 const response = await userApi.updateUser(data);
                 this.user_self = response.data;
             } catch (error: any) {
-                this.handleAuthErrors(error.response?.data);
+                this.user_self_errors = error.response?.data || null;
             } finally {
                 this.loading = false;
             }
