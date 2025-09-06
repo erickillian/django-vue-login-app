@@ -64,7 +64,6 @@ export const useUserStore = defineStore('allauth', {
 
         async login({ email, password }: { email: string; password: string }) {
             this.loading = true;
-            this.email = email;
             this.resetAuthErrors();
             try {
                 const response = await allauthApi.login({ email, password });
@@ -83,7 +82,6 @@ export const useUserStore = defineStore('allauth', {
 
         async signup({ email, password }: { email: string; password: string }) {
             this.loading = true;
-            this.email = email;
             this.resetAuthErrors();
             try {
                 const response = await allauthApi.signUp({ email, password });
