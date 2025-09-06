@@ -102,6 +102,8 @@ export const useUserStore = defineStore('allauth', {
             try {
                 const response = await allauthApi.verifyEmail(token);
                 this.auth_response = response.data;
+                this.user = response.data?.data?.user || null;
+                this.isAuthenticated = true;
             } catch (errors: any) {
                 this.handleAuthErrors(errors.response?.data);
                 throw errors.response?.data;
